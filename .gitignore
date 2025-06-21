@@ -1,0 +1,54 @@
+# Environment variables
+.env
+.env.local
+
+# API credentials
+credentials.json
+token.pickle
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Output directories
+*_transcribe/
+*_markdown/
+output/
+transcripts/
+downloads/
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.cache
+
+# Audio/Video files
+*.mp3
+*.mp4
+*.wav
+*.m4a
+*.webm
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test files
+test_*.txt
+test_*.md
