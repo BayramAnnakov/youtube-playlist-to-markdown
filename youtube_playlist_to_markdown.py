@@ -125,7 +125,7 @@ def format_duration(seconds):
     else:
         return f"{secs}s"
 
-def transcribe_video(video_url, output_dir, mode="transcribe", force_method=None):
+def transcribe_video(video_url, output_dir, mode="transcribe", force_method=None, verbose=False):
     """Transcribe a single video using transcribe_youtube_smart.py."""
     # Generate output filename based on video ID
     video_id = re.search(r'(?:v=|/)([0-9A-Za-z_-]{11}).*', video_url)
@@ -134,13 +134,20 @@ def transcribe_video(video_url, output_dir, mode="transcribe", force_method=None
     else:
         output_file = os.path.join(output_dir, f"video_{int(time.time())}_{mode}.txt")
     
+    # Get the path to transcribe_youtube_smart.py in the same directory as this script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    transcriber_path = os.path.join(script_dir, "transcribe_youtube_smart.py")
+    
     cmd = [
         sys.executable,
-        "transcribe_youtube_smart.py",
+        transcriber_path,
         video_url,
         "--mode", mode,
         "--output", output_file
     ]
+    
+    if verbose:
+        print(f"Command: {' '.join(cmd)}")
     
     if force_method:
         if force_method == "gemini":
@@ -160,9 +167,13 @@ def transcribe_video(video_url, output_dir, mode="transcribe", force_method=None
                     return True, line
             return True, "Transcription completed"
         else:
-            return False, result.stderr or "Unknown error"
+            # Provide more detailed error information
+            error_msg = result.stderr or result.stdout or "Unknown error"
+            if not error_msg.strip():
+                error_msg = f"Process exited with code {result.returncode}"
+            return False, error_msg
     except Exception as e:
-        return False, str(e)
+        return False, f"Exception: {str(e)}"
 
 def create_playlist_summary(playlist_info, videos, output_dir, results):
     """Create a summary markdown file for the playlist."""
@@ -223,6 +234,8 @@ def main():
                         help='Delay between videos in seconds (default: 2)')
     parser.add_argument('--skip-existing', action='store_true',
                         help='Skip videos that already have output files')
+    parser.add_argument('--verbose', '-v', action='store_true',
+                        help='Show verbose output including commands')
     
     args = parser.parse_args()
     
@@ -266,9 +279,11 @@ def main():
     print(f"Output directory: {output_dir}")
     
     # Check if transcribe_youtube_smart.py exists
-    if not os.path.exists("transcribe_youtube_smart.py"):
-        print("Error: transcribe_youtube_smart.py not found in current directory")
-        print("Please ensure the smart transcriber script is in the same directory")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    transcriber_path = os.path.join(script_dir, "transcribe_youtube_smart.py")
+    if not os.path.exists(transcriber_path):
+        print(f"Error: transcribe_youtube_smart.py not found at {transcriber_path}")
+        print("Please ensure the smart transcriber script is in the same directory as this script")
         sys.exit(1)
     
     # Process each video
@@ -295,7 +310,8 @@ def main():
             video['url'], 
             output_dir, 
             args.mode,
-            args.force
+            args.force,
+            args.verbose
         )
         
         results.append({

@@ -114,7 +114,11 @@ def try_youtube_api(url, output_file=None):
     """Try to get transcript using YouTube Transcript API."""
     print("Attempting to fetch transcript using YouTube API...")
     
-    cmd = [sys.executable, "transcribe_youtube_api.py", url]
+    # Get the path to transcribe_youtube_api.py in the same directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    api_script = os.path.join(script_dir, "transcribe_youtube_api.py")
+    
+    cmd = [sys.executable, api_script, url]
     if output_file:
         cmd.extend(["-o", output_file])
     
@@ -141,7 +145,11 @@ def try_gemini_api(url, output_file=None, mode="transcribe"):
     """Try to get transcript using Gemini API."""
     print(f"Attempting to {mode} using Gemini API...")
     
-    cmd = [sys.executable, "transcribe_youtube.py", url, "--mode", mode]
+    # Get the path to transcribe_youtube.py in the same directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    gemini_script = os.path.join(script_dir, "transcribe_youtube.py")
+    
+    cmd = [sys.executable, gemini_script, url, "--mode", mode]
     if output_file:
         cmd.extend(["-o", output_file])
     
@@ -167,7 +175,11 @@ def try_ytdlp_gemini(url, output_file=None, mode="transcribe"):
     """Try to transcribe by downloading audio with yt-dlp and using Gemini."""
     print(f"Attempting to {mode} using yt-dlp + Gemini...")
     
-    cmd = [sys.executable, "transcribe_youtube_ytdlp.py", url, "--mode", mode]
+    # Get the path to transcribe_youtube_ytdlp.py in the same directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    ytdlp_script = os.path.join(script_dir, "transcribe_youtube_ytdlp.py")
+    
+    cmd = [sys.executable, ytdlp_script, url, "--mode", mode]
     if output_file:
         cmd.extend(["-o", output_file])
     
